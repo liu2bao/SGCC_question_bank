@@ -8,6 +8,15 @@ data_list = os.listdir('data')
 db_name = r'E:\05_Job\materials\question_bank.db'
 table_name = 'question_band'
 
+key_option = 'option'
+key_no = 'no'
+key_stem = 'stem'
+key_answer = 'answer'
+key_type = 'type'
+key_class = 'class'
+key_right_times = 'right_times'
+key_wrong_times = 'wrong_times'
+
 def get_all_questions(file):
     with open(file,'rb') as f:
         D = [k.decode() for k in f.readlines()]
@@ -37,27 +46,27 @@ def segment_parts(lines):
 
 def get_items(lines):
     questions = []
-    question = {'option':{}}
+    question = {key_option:{}}
     str_con_t = ''
     option = None
     for line in lines:
         sobj = re.match('(\d{1,3})\. ',line)
         if sobj:
-            question = {'option':{}}
+            question = {key_option:{}}
             no = int(sobj.groups()[0])
-            question['no'] = no
+            question[key_no] = no
             str_con_t = line[sobj.span()[1]:].strip()
         elif any([str.startswith(line,t+'. ') for t in ['A','B','C','D']]):
-            if 'stem' not in question.keys():
-                question['stem'] = str_con_t
+            if key_stem not in question.keys():
+                question[key_stem] = str_con_t
             if option:
-                question['option'][option] = str_con_t
+                question[key_option][option] = str_con_t
             option = line[0]
             str_con_t = line[3:].strip()
         elif line.startswith('标准答案：'):
-            question['option'][option] = str_con_t
+            question[key_option][option] = str_con_t
             answer = line.replace('标准答案：','').strip()
-            question['answer'] = answer
+            question[key_answer] = answer
             questions.append(question)
         else:
             str_con_t = str_con_t+line.strip()
@@ -89,7 +98,7 @@ if __name__=='__main__':
             for class_t,DDD in DD.items():
                 for ddd in DDD:
                     d_t = ddd.copy()
-                    d_t.update({'type':type_t,'class':class_t,'right_times':0,'wrong_times':0})
+                    d_t.update({key_type:type_t, key_class:class_t, key_right_times:0, key_wrong_times:0})
                     D.append(d_t)
         utils_sqlite.insert_from_list_to_db(db_name,table_name,list_data=D,primary_key='no')
 
