@@ -6,7 +6,7 @@ import utils_sqlite
 path_data = 'data'
 data_list = os.listdir('data')
 db_name = r'E:\05_Job\materials\question_bank.db'
-table_name = 'question_band'
+table_name = 'question_bank'
 
 key_option = 'option'
 key_no = 'no'
@@ -16,6 +16,7 @@ key_type = 'type'
 key_class = 'class'
 key_right_times = 'right_times'
 key_wrong_times = 'wrong_times'
+key_skip = 'skip'
 
 def get_all_questions(file):
     with open(file,'rb') as f:
@@ -98,8 +99,12 @@ if __name__=='__main__':
             for class_t,DDD in DD.items():
                 for ddd in DDD:
                     d_t = ddd.copy()
-                    d_t.update({key_type:type_t, key_class:class_t, key_right_times:0, key_wrong_times:0})
+                    d_t.update({key_type:type_t, key_class:class_t, key_skip:False,
+                                key_right_times:0, key_wrong_times:0})
                     D.append(d_t)
+        print(len(D))
+        omit = set(list(range(1,601))).difference(set([d[key_no] for d in D]))
+        print('omit: %s' % (', '.join([str(o) for o in omit])))
         utils_sqlite.insert_from_list_to_db(db_name,table_name,list_data=D,primary_key='no')
 
 
